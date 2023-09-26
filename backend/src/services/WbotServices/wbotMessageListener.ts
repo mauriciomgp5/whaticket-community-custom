@@ -13,6 +13,7 @@ import {
 import Contact from "../../models/Contact";
 import Ticket from "../../models/Ticket";
 import Message from "../../models/Message";
+import Settings from "../../models/Setting";
 
 import { getIO } from "../../libs/socket";
 import CreateMessageService from "../MessageServices/CreateMessageService";
@@ -246,6 +247,21 @@ const handleMessage = async (
   if (!isValidMsg(msg)) {
     return;
   }
+  //IGNORAR MENSAGENS DE GRUPO
+	const Settingdb = await Settings.findOne({
+	  where: { key: 'CheckMsgIsGroup' }
+	});
+	if(Settingdb?.value == 'enabled') {
+		if (
+		msg.from === "status@broadcast" ||
+		//msg.type === "location" ||
+		//msg.type === "call_log" ||
+		msg.author != null
+		) {
+			return;
+		}
+	}
+//IGNORAR MENSAGENS DE GRUPO`
 
   try {
     let msgContact: WbotContact;
